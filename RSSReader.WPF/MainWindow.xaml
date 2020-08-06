@@ -1,0 +1,33 @@
+﻿<Window x:Class="RSSReader.WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RSSReader.WPF"
+        xmlns:feedCategoryTree="clr-namespace:RSSReader.WPF.Components.FeedCategoryTree"
+        xmlns:feedList="clr-namespace:RSSReader.WPF.Components.FeedList"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="750" Width="1100">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <feedCategoryTree:FeedCategoryTree Grid.Column="0" Grid.Row="0"
+                                     TreeComponents="{Binding Path=TreeComponents}"
+                                     SelectItem="FeedCategoryTree_SelectItem"
+                                     CreateCategory="FeedCategoryTree_CreateCategory"
+                                     CreateChannel="FeedCategoryTree_CreateChannel"
+                                     DeleteItem="FeedCategoryTree_DeleteItem">
+        </feedCategoryTree:FeedCategoryTree>
+
+        <feedList:FeedList Grid.Column="1" Grid.Row="0"
+                             FeedItems="{Binding Path=FeedListItems}"
+                             MarkFeedsAsRead="FeedList_MarkFeedsAsRead">
+        </feedList:FeedList>
+    </Grid>
+</Window>
