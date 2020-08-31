@@ -10,27 +10,28 @@ namespace RSSReader.BusinessLogic.Channels
 {
 	public class ChannelService : IChannelService
 	{
-		private readonly FeedContext _feedContext;
+		private readonly DbContextOptions<FeedContext> _feedContextOptions;
 		private readonly IMapper _mapper;
 
-		public ChannelService(FeedContext feedContext, IMapper mapper)
+		public ChannelService(DbContextOptions<FeedContext> feedContextOptions, IMapper mapper)
 		{
-			_feedContext = feedContext;
+			_feedContextOptions = feedContextOptions;
 			_mapper = mapper;
 		}
 
 		public Channel CreateChannel(Channel channel)
 		{
+			using var feedContext = new FeedContext(_feedContextOptions);
 			var channelDA = _mapper.Map<DataAccess.Models.Channel>(channel);
-			//channelDA.ChannelId = Guid.NewGuid().ToString();
-			_feedContext.Channels.Add(channelDA);
-			_feedContext.SaveChanges();
+			feedContext.Channels.Add(channelDA);
+			feedContext.SaveChanges();
 			return _mapper.Map<Channel>(channelDA);
 		}
 
 		public void DeleteChannel(int channelId)
 		{
-			var channel = _feedContext.Channels
+			using var feedContext = new FeedContext(_feedContextOptions);
+			var channel = feedContext.Channels
 				.SingleOrDefault(c => c.ChannelId == channelId);
 
 			if (channel == null)
@@ -38,35 +39,39 @@ namespace RSSReader.BusinessLogic.Channels
 				return;
 			}
 
-			_feedContext.Channels.Remove(channel);
-			_feedContext.SaveChanges();
+			feedContext.Channels.Remove(channel);
+			feedContext.SaveChanges();
 		}
 
 		public Channel GetChannel(int channelId)
 		{
-			return _mapper.Map<Channel>(_feedContext.Channels.Find(channelId));
+			using var feedContext = new FeedContext(_feedContextOptions);
+			return _mapper.Map<Channel>(feedContext.Channels.Find(channelId));
 		}
 
 		public IEnumerable<Channel> GetChannels()
 		{
-			return _mapper.Map<IEnumerable<Channel>>(_feedContext.Channels.ToList());
+			using var feedContext = new FeedContext(_feedContextOptions);
+			return _mapper.Map<IEnumerable<Channel>>(feedContext.Channels.ToList());
 		}
 
 		public IEnumerable<Channel> GetChannelsWithFeeds()
 		{
-			return _mapper.Map<IEnumerable<Channel>>(_feedContext.Channels
+			using var feedContext = new FeedContext(_feedContextOptions);
+			return _mapper.Map<IEnumerable<Channel>>(feedContext.Channels
 				.Include(channel => channel.FeedItems)
 				.ToList());
 		}
 
 		public Channel UpdateChannel(Channel channel)
 		{
-			var savedChannel = _feedContext.Channels.Find(channel.ChannelId);
+			using var feedContext = new FeedContext(_feedContextOptions);
+			var savedChannel = feedContext.Channels.Find(channel.ChannelId);
 
 			var newChannel = _mapper.Map<DataAccess.Models.Channel>(channel);
-			_feedContext.Entry(savedChannel).CurrentValues.SetValues(newChannel);
-			_feedContext.SaveChanges();
-			_feedContext.Entry(savedChannel).Reload();
+			feedContext.Entry(savedChannel).CurrentValues.SetValues(newChannel);
+			feedContext.SaveChanges();
+			feedContext.Entry(savedChannel).Reload();
 
 			return _mapper.Map<Channel>(savedChannel);
 		}

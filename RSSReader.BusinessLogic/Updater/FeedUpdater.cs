@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using RSSReader.BusinessLogic.Loader;
 using RSSReader.DataAccess;
 using System;
@@ -11,20 +12,22 @@ namespace RSSReader.BusinessLogic.Updater
 {
 	public class FeedUpdater : IFeedUpdater
 	{
-		private readonly FeedContext _feedContext;
+		private readonly DbContextOptions<FeedContext> _feedContextOptions;
 		private readonly IFeedLoader _feedLoader;
 		private readonly IMapper _mapper;
 
-		public FeedUpdater(FeedContext feedContext, IFeedLoader feedLoader, IMapper mapper)
+		public FeedUpdater(DbContextOptions<FeedContext> feedContextOptions,
+			IFeedLoader feedLoader, IMapper mapper)
 		{
-			_feedContext = feedContext;
+			_feedContextOptions = feedContextOptions;
 			_feedLoader = feedLoader;
 			_mapper = mapper;
 		}
 
 		public async Task UpdateFeedAsync(int channelId)
 		{
-			var channel = _feedContext.Channels.Find(channelId);
+			using var feedContext = new FeedContext(_feedContextOptions);
+			var channel = feedContext.Channels.Find(channelId);
 
 			if (channel == null)
 			{
@@ -36,14 +39,11 @@ namespace RSSReader.BusinessLogic.Updater
 
 		public async Task UpdateFeedsAsync()
 		{
-			var channels = _feedContext.Channels.ToList();
+			using var feedContext = new FeedContext(_feedContextOptions);
+			var channels = feedContext.Channels.ToList();
 			var tasks = channels.Select(channel =>
 					UpdateChannelFeedAsync(channel.ChannelId, channel.Link))
 				.ToList();
-			//var tasks = _feedContext.Channels.Select(channel =>
-			//		UpdateChannelFeedAsync(channel.ChannelId, channel.Link))
-			//	.ToList();
-
 			await Task.WhenAll(tasks);
 		}
 
@@ -51,9 +51,10 @@ namespace RSSReader.BusinessLogic.Updater
 		{
 			try
 			{
+				using var feedContext = new FeedContext(_feedContextOptions);
 				var currentFeedItems = await _feedLoader.LoadFeedAsync(link);
 				var newFeedtems = currentFeedItems
-					.Where(item => !_feedContext.FeedItems
+					.Where(item => !feedContext.FeedItems
 						.Any(fi => fi.ChannelId == channelId &&
 							fi.FeedItemId == item.FeedItemId))
 					.Select(newItem =>
@@ -63,8 +64,8 @@ namespace RSSReader.BusinessLogic.Updater
 						return _mapper.Map<DataAccess.Models.FeedItem>(newItem);
 					});
 
-				_feedContext.FeedItems.AddRange(newFeedtems);
-				_feedContext.SaveChanges();
+				feedContext.FeedItems.AddRange(newFeedtems);
+				feedContext.SaveChanges();
 			}
 			catch (Exception e)
 			{
