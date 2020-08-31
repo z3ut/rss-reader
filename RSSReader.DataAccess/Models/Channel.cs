@@ -13,18 +13,6 @@ namespace RSSReader.DataAccess.Models
 		public string Link { get; set; }
 		public int CategoryId { get; set; }
 
-		//[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-		//public int NewFeedItemsCount
-		//{
-		//	get
-		//	{
-		//		return (FeedItems == null) ? 0 :
-		//			FeedItems.Where(item => item.IsRead == false).Count();
-		//	}
-		//}
-
-		//public int NewFeedItemsCount { get; set; }
-
 		public Category Category { get; set; }
 		public List<FeedItem> FeedItems { get; set; }
 	}

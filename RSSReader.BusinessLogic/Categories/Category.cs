@@ -17,12 +17,6 @@ namespace RSSReader.BusinessLogic.Categories
 		public IEnumerable<Category> ChildCategories { get; set; }
 		public IEnumerable<Channel> Channels { get; set; }
 
-		//public IEnumerable<FeedItem> NewFeedItems =>
-		//	Channels.SelectMany(channel => channel.NewFeedItems)
-		//		.Concat(ChildCategories.SelectMany(category => category.NewFeedItems));
-
-		//public int NewFeedItemsCount => NewFeedItems.Count();
-
 		public int NewFeedItemsCount
 		{
 			get

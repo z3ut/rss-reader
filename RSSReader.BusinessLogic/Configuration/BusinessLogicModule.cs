@@ -29,7 +29,6 @@ namespace RSSReader.BusinessLogic.Configuration
 			builder.RegisterType<FeedLoader>().As<IFeedLoader>();
 			builder.RegisterType<FeedUpdater>().As<IFeedUpdater>();
 
-			//builder.Register(c => new FeedContext(_connectionString)).As<FeedContext>();
 			var feedContextOptions = new DbContextOptionsBuilder<FeedContext>()
 				.UseSqlite(_connectionString)
 				.Options;

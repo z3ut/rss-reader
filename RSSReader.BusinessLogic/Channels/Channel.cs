@@ -14,15 +14,9 @@ namespace RSSReader.BusinessLogic.Channels
 		public string Link { get; set; }
 		public int? CategoryId { get; set; }
 
+		public int NewFeedItemsCount { get; set; }
+
 		public Category Category { get; set; }
 		public IEnumerable<FeedItem> FeedItems { get; set; }
-
-		//public IEnumerable<FeedItem> NewFeedItems => FeedItems != null ?
-		//	FeedItems.Where(item => item.IsRead == false) :
-		//	new List<FeedItem>();
-
-		//public int NewFeedItemsCount => NewFeedItems.Count();
-
-		public int NewFeedItemsCount { get; set; }
 	}
 }
