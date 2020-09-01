@@ -9,7 +9,7 @@ using RSSReader.DataAccess;
 namespace RSSReader.DataAccess.Migrations
 {
     [DbContext(typeof(FeedContext))]
-    [Migration("20200726000238_InitialCreate")]
+    [Migration("20200901091135_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -79,6 +79,12 @@ namespace RSSReader.DataAccess.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("DateTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ImageUrl")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsRead")

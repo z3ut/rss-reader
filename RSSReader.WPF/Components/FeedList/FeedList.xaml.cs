@@ -23,6 +23,9 @@ namespace RSSReader.WPF.Components.FeedList
 		public delegate void MarkFeedAsReadHandler(IEnumerable<FeedListItem> items);
 		public event MarkFeedAsReadHandler MarkFeedsAsRead;
 
+		public delegate void SelectFeedItemHandler(FeedListItem feedListItem);
+		public event SelectFeedItemHandler SelectFeedItem;
+
 		public static readonly DependencyProperty FeedItemsProperty =
 			DependencyProperty.Register(nameof(FeedItems), typeof(IEnumerable<FeedListItem>),
 				typeof(FeedList), new FrameworkPropertyMetadata(new List<FeedListItem>()));
@@ -43,6 +46,7 @@ namespace RSSReader.WPF.Components.FeedList
 			}
 
 			MarkFeedsAsRead?.Invoke(new List<FeedListItem>() { item });
+			SelectFeedItem?.Invoke(item);
 		}
 
 

@@ -14,6 +14,8 @@ namespace RSSReader.BusinessLogic.Feeds
 		public string Link { get; set; }
 		public DateTime DateTime { get; set; }
 		public bool IsRead { get; set; }
+		public string Description { get; set; }
+		public string ImageUrl { get; set; }
 
 		public Channel Channel { get; set; }
 	}

@@ -6,6 +6,7 @@ using System.ServiceModel.Syndication;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace RSSReader.BusinessLogic.Loader
 {
@@ -16,7 +17,7 @@ namespace RSSReader.BusinessLogic.Loader
 			using (var reader = XmlReader.Create(url))
 			{
 				var feed = SyndicationFeed.Load(reader);
-				return feed.Items?.Select(item => new FeedItem()
+				return feed?.Items?.Select(item => new FeedItem()
 				{
 					RSSFeedId = item.Id,
 					Title = item.Title?.Text,
@@ -26,9 +27,34 @@ namespace RSSReader.BusinessLogic.Loader
 			}
 		}
 
-		public Task<IEnumerable<FeedItem>> LoadFeedAsync(string url)
+		public async Task<IEnumerable<FeedItem>> LoadFeedAsync(string url)
 		{
-			return Task.FromResult(LoadFeed(url));
+			var feed = await CodeHollow.FeedReader.FeedReader.ReadAsync(url);
+			return feed?.Items?.Select(item =>
+			{
+				string imageUrl = GetDescendantElementWithName(item, "thumbnail")
+					?.Attribute("url")?.Value;
+
+				string description = item.Description ??
+					GetDescendantElementWithName(item, "description")?.Value;
+
+				return new FeedItem()
+				{
+					RSSFeedId = item.Id,
+					Title = item.Title,
+					Link = item.Link,
+					DateTime = item.PublishingDate ?? DateTime.UtcNow,
+					Description = description,
+					ImageUrl = imageUrl
+				};
+			});
+		}
+
+		private XElement GetDescendantElementWithName(
+			CodeHollow.FeedReader.FeedItem item, string name)
+		{
+			return item.SpecificItem.Element.Descendants()
+				.FirstOrDefault(x => x.Name.LocalName == name);
 		}
 	}
 }

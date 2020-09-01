@@ -6,10 +6,12 @@
         xmlns:local="clr-namespace:RSSReader.WPF"
         xmlns:feedCategoryTree="clr-namespace:RSSReader.WPF.Components.FeedCategoryTree"
         xmlns:feedList="clr-namespace:RSSReader.WPF.Components.FeedList"
+        xmlns:feedItemPreview="clr-namespace:RSSReader.WPF.Components.FeedItemPreview"
         mc:Ignorable="d"
         Title="MainWindow" Height="750" Width="1100">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -17,7 +19,7 @@
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <feedCategoryTree:FeedCategoryTree Grid.Column="0" Grid.Row="0"
+        <feedCategoryTree:FeedCategoryTree Grid.Column="0" Grid.Row="0" Grid.RowSpan="2"
                                      TreeComponents="{Binding Path=TreeComponents}"
                                      SelectItem="FeedCategoryTree_SelectItem"
                                      CreateCategory="FeedCategoryTree_CreateCategory"
@@ -26,8 +28,13 @@
         </feedCategoryTree:FeedCategoryTree>
 
         <feedList:FeedList Grid.Column="1" Grid.Row="0"
-                             FeedItems="{Binding Path=FeedListItems}"
-                             MarkFeedsAsRead="FeedList_MarkFeedsAsRead">
+                            FeedItems="{Binding Path=FeedListItems}"
+                            MarkFeedsAsRead="FeedList_MarkFeedsAsRead"
+                            SelectFeedItem="FeedList_SelectFeedItem">
         </feedList:FeedList>
+
+        <feedItemPreview:FeedItemPreview Grid.Column="1" Grid.Row="1"
+                                         FeedItem="{Binding Path=FeedItem}">
+        </feedItemPreview:FeedItemPreview>
     </Grid>
 </Window>

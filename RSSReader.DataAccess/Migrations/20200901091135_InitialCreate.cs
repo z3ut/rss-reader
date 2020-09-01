@@ -73,7 +73,9 @@ namespace RSSReader.DataAccess.Migrations
                     Title = table.Column<string>(nullable: true),
                     Link = table.Column<string>(nullable: true),
                     DateTime = table.Column<DateTime>(nullable: false),
-                    IsRead = table.Column<bool>(nullable: false)
+                    IsRead = table.Column<bool>(nullable: false),
+                    Description = table.Column<string>(nullable: true),
+                    ImageUrl = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

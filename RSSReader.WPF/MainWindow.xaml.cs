@@ -40,12 +40,20 @@ namespace RSSReader.WPF
 
 			InitializeDI();
 			InitializeFeed();
-
-			var feedItems = _feedService.GetFeedItems();
 		}
 
 		public ObservableCollection<TreeComponent> TreeComponents { get; set; }
 		public ObservableCollection<FeedListItem> FeedListItems { get; set; }
+
+		public static readonly DependencyProperty FeedItemProperty =
+			DependencyProperty.Register(nameof(FeedItem), typeof(FeedItem),
+				typeof(MainWindow), new FrameworkPropertyMetadata(new FeedItem()));
+
+		public FeedItem FeedItem
+		{
+			get { return GetValue(FeedItemProperty) as FeedItem; }
+			set { SetValue(FeedItemProperty, value); }
+		}
 
 		private void InitializeDI()
 		{
@@ -310,6 +318,11 @@ namespace RSSReader.WPF
 
 			_feedComponent.NewFeedItemsCountManual += channelNewFeedItemsCount;
 			treeComponent.NewFeedItemsCountManual = channelNewFeedItemsCount;
+		}
+
+		private void FeedList_SelectFeedItem(FeedListItem feedListItem)
+		{
+			FeedItem = feedListItem?.FeedItem;
 		}
 	}
 }
