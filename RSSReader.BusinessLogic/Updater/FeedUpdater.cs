@@ -56,7 +56,7 @@ namespace RSSReader.BusinessLogic.Updater
 				var newFeedtems = currentFeedItems
 					.Where(item => !feedContext.FeedItems
 						.Any(fi => fi.ChannelId == channelId &&
-							fi.FeedItemId == item.FeedItemId))
+							fi.RSSFeedId == item.RSSFeedId))
 					.Select(newItem =>
 					{
 						newItem.ChannelId = channelId;
