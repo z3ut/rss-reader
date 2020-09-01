@@ -8,10 +8,12 @@ using RSSReader.DataAccess;
 using RSSReader.WPF.Components.FeedCategoryTree;
 using RSSReader.WPF.Components.FeedList;
 using RSSReader.WPF.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 
 
@@ -32,6 +34,9 @@ namespace RSSReader.WPF
 		private TreeComponent _feedComponent;
 		private TreeComponent _subscriptionsComponent;
 
+		private int _updateFeedIntervalMS = 60 * 60 * 1000;
+		private Timer _updateFeedTimer;
+
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -40,6 +45,10 @@ namespace RSSReader.WPF
 
 			InitializeDI();
 			InitializeFeed();
+			UpdateChannelNewItemsCount();
+			SetUpdateFeedTimer();
+
+			Task.Run(async () => await UpdateFeed());
 		}
 
 		public ObservableCollection<TreeComponent> TreeComponents { get; set; }
@@ -73,17 +82,15 @@ namespace RSSReader.WPF
 
 		private void InitializeFeed()
 		{
-			var categories = _categoryService.GetCategories();
-
-			var newFeedItemsCount = _feedService.GetNewFeedItemsCount();
-
 			_feedComponent = new TreeComponent()
 			{
 				Name = "Feed",
 				PopupType = PopupType.FeedPopup,
 				TreeComponentType = TreeComponentType.Feed,
-				NewFeedItemsCountManual = newFeedItemsCount
+				NewFeedItemsCountManual = 0
 			};
+
+			var categories = _categoryService.GetCategories();
 
 			_subscriptionsComponent = new TreeComponent(
 				ConvertCategoriesToTreeComponents(categories))
@@ -100,8 +107,77 @@ namespace RSSReader.WPF
 			};
 
 			FeedListItems = new ObservableCollection<FeedListItem>();
+		}
 
-			//Task.Run(async () => await _feedUpdater.UpdateFeedsAsync());
+		private void UpdateChannelNewItemsCount()
+		{
+			_feedComponent.NewFeedItemsCountManual = _feedService.GetNewFeedItemsCount();
+
+			var channelNewItemsCount = _channelService.GetChannelNewItemsCount();
+
+			FiilChannelNewItemsInTreeComponents(channelNewItemsCount,
+				_subscriptionsComponent.SubComponents);
+		}
+
+		private void SetUpdateFeedTimer()
+		{
+			_updateFeedTimer = new Timer(_updateFeedIntervalMS);
+			_updateFeedTimer.Elapsed += _updateFeedTimer_Elapsed;
+			_updateFeedTimer.AutoReset = true;
+			_updateFeedTimer.Enabled = true;
+		}
+
+		private async Task UpdateFeed()
+		{
+			await _feedUpdater.UpdateFeedsAsync();
+
+			App.Current.Dispatcher.Invoke(delegate
+			{
+				UpdateChannelNewItemsCount();
+			});
+		}
+
+		private async void _updateFeedTimer_Elapsed(object sender, ElapsedEventArgs e)
+		{
+			await UpdateFeed();
+		}
+
+		private void FiilChannelNewItemsInTreeComponents(
+			IEnumerable<ChannelNewItemsCount> channelNewItemsCounts,
+			IEnumerable<TreeComponent> treeComponents)
+		{
+			foreach (var component in treeComponents)
+			{
+				FiilChannelNewItemsInTreeComponents(channelNewItemsCounts, component.SubComponents);
+
+				if (component.TreeComponentType == TreeComponentType.Channel)
+				{
+					var channelNewFeedItemsCount = channelNewItemsCounts
+						.FirstOrDefault(c => c.ChannelId == (component.Item as Channel)?.ChannelId)
+						?.NewItemsCounts;
+					component.NewFeedItemsCountManual = channelNewFeedItemsCount.GetValueOrDefault(0);
+				}
+			}
+		}
+
+		private void FillChannelNewItemsCount(IEnumerable<Category> categories,
+			IEnumerable<ChannelNewItemsCount> channelNewItemsCounts)
+		{
+			foreach (var category in categories)
+			{
+				FillChannelNewItemsCount(category.ChildCategories, channelNewItemsCounts);
+
+				foreach (var channel in category.Channels)
+				{
+					var channelCount = channelNewItemsCounts
+						.FirstOrDefault(c => c.ChannelId == channel.ChannelId);
+
+					if (channelCount != null)
+					{
+						channel.NewFeedItemsCount = channelCount.NewItemsCounts;
+					}
+				}
+			}
 		}
 
 		private IEnumerable<TreeComponent> ConvertCategoriesToTreeComponents(IEnumerable<Category> categories)

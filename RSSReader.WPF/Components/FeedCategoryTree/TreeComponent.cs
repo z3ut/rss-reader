@@ -57,13 +57,7 @@ namespace RSSReader.WPF.Components.FeedCategoryTree
 					return channel.NewFeedItemsCount;
 				}
 
-				if (Item is Category)
-				{
-					var category = Item as Category;
-					return category.NewFeedItemsCount;
-				}
-
-				if (Item == null && SubComponents != null)
+				if ((Item == null || Item is Category) && SubComponents != null)
 				{
 					return SubComponents
 						.Select(c => c.NewFeedItemsCount)
@@ -104,7 +98,7 @@ namespace RSSReader.WPF.Components.FeedCategoryTree
 
 
 		public event PropertyChangedEventHandler PropertyChanged;
-		//protected
+
 		public void OnPropertyChanged([CallerMemberName] string name = null)
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -141,11 +135,11 @@ namespace RSSReader.WPF.Components.FeedCategoryTree
 			SubComponents.CollectionChanged += SubComponents_CollectionChanged;
 		}
 
-		private void SubComponents_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		private void SubComponents_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
 			OnPropertyChanged(nameof(NameWithNumberOfNewItems));
 			OnPropertyChanged(nameof(NewFeedItemsCount));
-			//OnPropertyChanged(nameof(SubComponents));
+			OnPropertyChanged(nameof(SubComponents));
 		}
 	}
 

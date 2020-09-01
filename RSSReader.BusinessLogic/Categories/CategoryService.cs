@@ -50,55 +50,11 @@ namespace RSSReader.BusinessLogic.Categories
 			var categories = feedContext.Categories
 				.Include(category => category.ChildCategories)
 				.Include(category => category.Channels)
-				.ToList();
+				.ToList()
+				.Where(category => category.ParentCategoryId == null);
 
-			var channelNewItemsCount = feedContext.Channels.Select(channel =>
-				new ChannelNewItemsCount(channel, feedContext.FeedItems
-					.Where(fi => fi.ChannelId == channel.ChannelId &&
-						fi.IsRead == false)
-					.Count())
-			).ToList();
-
-			var categoriesBL = _mapper.Map<IEnumerable<Category>>(categories);
-
-			FillChannelNewItemsCount(categoriesBL, channelNewItemsCount);
-
-			return categoriesBL;
+			return _mapper.Map<IEnumerable<Category>>(categories);
 		}
-
-		private class ChannelNewItemsCount
-		{
-			public ChannelNewItemsCount(DataAccess.Models.Channel channel, int newItemsCounts)
-			{
-				Channel = channel;
-				NewItemsCounts = newItemsCounts;
-			}
-
-			public DataAccess.Models.Channel Channel { get; set; }
-			public int NewItemsCounts { get; set; }
-
-		}
-
-		private void FillChannelNewItemsCount(IEnumerable<Category> categories,
-			IEnumerable<ChannelNewItemsCount> channelNewItemsCounts)
-		{
-			foreach (var category in categories)
-			{
-				FillChannelNewItemsCount(category.ChildCategories, channelNewItemsCounts);
-
-				foreach (var channel in category.Channels)
-				{
-					var channelCount = channelNewItemsCounts
-						.FirstOrDefault(c => c.Channel.ChannelId == channel.ChannelId);
-
-					if (channelCount != null)
-					{
-						channel.NewFeedItemsCount = channelCount.NewItemsCounts;
-					}
-				}
-			}
-		}
-
 
 		public IEnumerable<Category> GetCategoriesWithFeeds()
 		{

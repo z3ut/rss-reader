@@ -75,5 +75,16 @@ namespace RSSReader.BusinessLogic.Channels
 
 			return _mapper.Map<Channel>(savedChannel);
 		}
+
+		public IEnumerable<ChannelNewItemsCount> GetChannelNewItemsCount()
+		{
+			using var feedContext = new FeedContext(_feedContextOptions);
+			return feedContext.Channels.Select(channel =>
+				new ChannelNewItemsCount(channel.ChannelId, feedContext.FeedItems
+					.Where(fi => fi.ChannelId == channel.ChannelId &&
+						fi.IsRead == false)
+					.Count()))
+				.ToList();
+		}
 	}
 }

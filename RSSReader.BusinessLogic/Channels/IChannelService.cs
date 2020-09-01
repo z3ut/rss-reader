@@ -13,5 +13,7 @@ namespace RSSReader.BusinessLogic.Channels
 
 		IEnumerable<Channel> GetChannels();
 		IEnumerable<Channel> GetChannelsWithFeeds();
+
+		IEnumerable<ChannelNewItemsCount> GetChannelNewItemsCount();
 	}
 }
