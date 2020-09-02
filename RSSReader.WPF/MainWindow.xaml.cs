@@ -316,6 +316,7 @@ namespace RSSReader.WPF
 
 					_categoryService.DeleteCategory(category.CategoryId);
 					RemoveSubcomponentWithItem(_subscriptionsComponent, category);
+					_feedComponent.NewFeedItemsCountManual = _feedService.GetNewFeedItemsCount();
 
 					break;
 				case TreeComponentType.Channel:
@@ -332,6 +333,7 @@ namespace RSSReader.WPF
 
 					_channelService.DeleteChannel(channel.ChannelId);
 					RemoveSubcomponentWithItem(_subscriptionsComponent, channel);
+					_feedComponent.NewFeedItemsCountManual = _feedService.GetNewFeedItemsCount();
 
 					break;
 				default:
