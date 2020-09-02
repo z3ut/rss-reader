@@ -1,5 +1,6 @@
 ﻿using RSSReader.BusinessLogic.Categories;
 using RSSReader.BusinessLogic.Channels;
+using RSSReader.WPF.Shared;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,7 +15,16 @@ namespace RSSReader.WPF.Components.FeedCategoryTree
 	public class TreeComponent : INotifyPropertyChanged
 	{
 		private string _name;
-		public string Name { get { return _name; } set { _name = value; OnPropertyChanged(); } }
+		public string Name
+		{
+			get { return _name; }
+			set
+			{
+				_name = value;
+				OnPropertyChanged();
+				OnPropertyChanged(nameof(NameWithNumberOfNewItems));
+			}
+		}
 
 		public string NameWithNumberOfNewItems
 		{
@@ -70,7 +80,19 @@ namespace RSSReader.WPF.Components.FeedCategoryTree
 
 		public PopupType PopupType { get; set; }
 		public TreeComponentType TreeComponentType { get; set; }
-		public object Item { get; set; }
+
+		private object _item { get; set; }
+		public object Item
+		{
+			get { return _item; }
+			set
+			{
+				_item = value;
+				OnPropertyChanged();
+				OnPropertyChanged(nameof(NameWithNumberOfNewItems));
+				OnPropertyChanged(nameof(NewFeedItemsCount));
+			}
+		}
 
 
 		private bool _isExpanded { get; set; }
@@ -140,50 +162,6 @@ namespace RSSReader.WPF.Components.FeedCategoryTree
 			OnPropertyChanged(nameof(NameWithNumberOfNewItems));
 			OnPropertyChanged(nameof(NewFeedItemsCount));
 			OnPropertyChanged(nameof(SubComponents));
-		}
-	}
-
-
-	// https://stackoverflow.com/questions/1427471/observablecollection-not-noticing-when-item-in-it-changes-even-with-inotifyprop
-	public sealed class TrulyObservableCollection<T> : ObservableCollection<T>
-		where T : INotifyPropertyChanged
-	{
-		public TrulyObservableCollection()
-		{
-			CollectionChanged += FullObservableCollectionCollectionChanged;
-		}
-
-		public TrulyObservableCollection(IEnumerable<T> pItems) : this()
-		{
-			foreach (var item in pItems)
-			{
-				this.Add(item);
-			}
-		}
-
-		private void FullObservableCollectionCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-		{
-			if (e.NewItems != null)
-			{
-				foreach (Object item in e.NewItems)
-				{
-					((INotifyPropertyChanged)item).PropertyChanged += ItemPropertyChanged;
-				}
-			}
-			if (e.OldItems != null)
-			{
-				foreach (Object item in e.OldItems)
-				{
-					((INotifyPropertyChanged)item).PropertyChanged -= ItemPropertyChanged;
-				}
-			}
-		}
-
-		private void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			NotifyCollectionChangedEventArgs args = new NotifyCollectionChangedEventArgs(
-				NotifyCollectionChangedAction.Replace, sender, sender, IndexOf((T)sender));
-			OnCollectionChanged(args);
 		}
 	}
 }

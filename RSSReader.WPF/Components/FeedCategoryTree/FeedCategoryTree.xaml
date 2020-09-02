@@ -9,13 +9,8 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <ContextMenu x:Key="FeedPopup">
-            <MenuItem Header="Feed (nothing)" />
-            <!--<MenuItem Header="Delete" Click="CategoryFeedDelete" />-->
-        </ContextMenu>
         <ContextMenu x:Key="SubscriptionsPopup">
             <MenuItem Header="New Category" Click="SubscriptionsPopupNewCategory" />
-            <!--<MenuItem Header="New Subscription" Click="SubscriptionsPopupNewSubscription" />-->
         </ContextMenu>
         <ContextMenu x:Key="CategoryPopup">
             <MenuItem Header="New Category" Click="CategoryPopupNewCategory" />
@@ -24,9 +19,8 @@
             <MenuItem Header="Delete" Click="CategoryPopupDelete" />
         </ContextMenu>
         <ContextMenu x:Key="ChannelPopup">
-            <MenuItem Header="ChannelPopup (nothing)" />
+            <MenuItem Header="Edit" Click="ChannelPopupEdit" />
             <MenuItem Header="Delete" Click="ChannelPopupDelete" />
-            <!--<MenuItem Header="Delete" Click="CategoryFeedDelete" />-->
         </ContextMenu>
         <local:ItemToContextMenuConverter x:Key="ContextMenuConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -46,11 +40,6 @@
                         </Image>
                         <TextBlock Text="{Binding Path=NameWithNumberOfNewItems}"></TextBlock>
                     </StackPanel>
-                    <!--<HierarchicalDataTemplate.ItemContainerStyle>
-                        <Style TargetType="{x:Type TreeViewItem}">
-                            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                        </Style>
-                    </HierarchicalDataTemplate.ItemContainerStyle>-->
                 </HierarchicalDataTemplate>
 
                 <Style TargetType="{x:Type TreeViewItem}">

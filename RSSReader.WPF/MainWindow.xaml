@@ -24,6 +24,7 @@
                                      SelectItem="FeedCategoryTree_SelectItem"
                                      CreateCategory="FeedCategoryTree_CreateCategory"
                                      CreateChannel="FeedCategoryTree_CreateChannel"
+                                     EditChannel="FeedCategoryTree_EditChannel"
                                      DeleteItem="FeedCategoryTree_DeleteItem">
         </feedCategoryTree:FeedCategoryTree>
 

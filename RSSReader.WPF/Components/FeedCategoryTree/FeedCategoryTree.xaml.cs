@@ -18,8 +18,6 @@ namespace RSSReader.WPF.Components.FeedCategoryTree
 		{
 			InitializeComponent();
 
-			ItemToContextMenuConverter.FeedPopup
-				= this.Resources["FeedPopup"] as ContextMenu;
 			ItemToContextMenuConverter.SubscriptionsPopup
 				= this.Resources["SubscriptionsPopup"] as ContextMenu;
 			ItemToContextMenuConverter.CategoryPopup
@@ -38,6 +36,9 @@ namespace RSSReader.WPF.Components.FeedCategoryTree
 
 		public delegate void DeleteItemHandler(TreeComponent item);
 		public event DeleteItemHandler DeleteItem;
+
+		public delegate void EditChannelHandler(TreeComponent treeComponent);
+		public event EditChannelHandler EditChannel;
 
 		public delegate void CreateCategoryHandler(NewCategoryData newCategoryData);
 		public event CreateCategoryHandler CreateCategory;
@@ -130,6 +131,32 @@ namespace RSSReader.WPF.Components.FeedCategoryTree
 			}
 
 			DeleteItem?.Invoke(treeComponent);
+		}
+
+		private void ChannelPopupEdit(object sender, RoutedEventArgs e)
+		{
+			var treeComponent = (e.OriginalSource as MenuItem)?.DataContext as TreeComponent;
+
+			if (treeComponent == null)
+			{
+				return;
+			}
+
+			var channel = treeComponent.Item as Channel;
+
+			if (channel == null)
+			{
+				return;
+			}
+
+			var editChannelDialog = new EditChannelWindow(channel.Title, channel.Link);
+			if (editChannelDialog.ShowDialog() == true)
+			{
+				channel.Title = editChannelDialog.ChannelTitle;
+				channel.Link = editChannelDialog.ChannelLink;
+
+				EditChannel?.Invoke(treeComponent);
+			}
 		}
 
 		private void ChannelPopupDelete(object sender, RoutedEventArgs e)

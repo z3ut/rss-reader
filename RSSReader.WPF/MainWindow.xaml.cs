@@ -207,7 +207,6 @@ namespace RSSReader.WPF
 				if (feedItem != null && feedItem.IsRead == false)
 				{
 					feedItem.IsRead = true;
-					//_feedService.UpdateFeedItem(feedItem);
 
 					var channelTreeComponent = FindChannel(TreeComponents, feedItem.ChannelId);
 					var channel = channelTreeComponent.Item as Channel;
@@ -390,15 +389,37 @@ namespace RSSReader.WPF
 
 		private void UpdateChannelStats(int channelId, TreeComponent treeComponent)
 		{
-			var channelNewFeedItemsCount = _feedService.GetNewFeedItemsCount(channelId);
-
-			_feedComponent.NewFeedItemsCountManual += channelNewFeedItemsCount;
-			treeComponent.NewFeedItemsCountManual = channelNewFeedItemsCount;
+			_feedComponent.NewFeedItemsCountManual = _feedService.GetNewFeedItemsCount();
+			treeComponent.NewFeedItemsCountManual = _feedService.GetNewFeedItemsCount(channelId);
 		}
 
 		private void FeedList_SelectFeedItem(FeedListItem feedListItem)
 		{
 			FeedItem = feedListItem?.FeedItem;
+		}
+
+		private async void FeedCategoryTree_EditChannel(TreeComponent treeComponent)
+		{
+			var channel = treeComponent.Item as Channel;
+
+			if (channel == null)
+			{
+				return;
+			}
+
+			_channelService.UpdateChannel(channel);
+
+			await _feedUpdater.UpdateFeedAsync(channel.ChannelId);
+
+			UpdateChannelStats(channel.ChannelId, treeComponent);
+
+			var channelInTree = FindChannel(_subscriptionsComponent.SubComponents, channel.ChannelId);
+
+			if (channelInTree != null)
+			{
+				channelInTree.Item = channel;
+				channelInTree.Name = channel.Title;
+			}
 		}
 	}
 }
