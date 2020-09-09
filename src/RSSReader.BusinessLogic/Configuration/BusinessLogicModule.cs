@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using RSSReader.BusinessLogic.Categories;
 using RSSReader.BusinessLogic.Channels;
+using RSSReader.BusinessLogic.Configs;
 using RSSReader.BusinessLogic.Feeds;
 using RSSReader.BusinessLogic.Loader;
 using RSSReader.BusinessLogic.Updater;
@@ -25,6 +26,7 @@ namespace RSSReader.BusinessLogic.Configuration
 		{
 			builder.RegisterType<CategoryService>().As<ICategoryService>();
 			builder.RegisterType<ChannelService>().As<IChannelService>();
+			builder.RegisterType<ConfigService>().As<IConfigService>();
 			builder.RegisterType<FeedService>().As<IFeedService>();
 			builder.RegisterType<FeedLoader>().As<IFeedLoader>();
 			builder.RegisterType<FeedUpdater>().As<IFeedUpdater>();

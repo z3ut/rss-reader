@@ -11,6 +11,7 @@ namespace RSSReader.DataAccess
 		public DbSet<Category> Categories { get; set; }
 		public DbSet<Channel> Channels { get; set; }
 		public DbSet<FeedItem> FeedItems { get; set; }
+		public DbSet<Config> Configs { get; set; }
 
 		public FeedContext() { }
 
@@ -44,6 +45,10 @@ namespace RSSReader.DataAccess
 			modelBuilder.Entity<FeedItem>()
 				.Property(c => c.FeedItemId)
 				.ValueGeneratedOnAdd();
+
+
+			modelBuilder.Entity<Config>().HasData(
+				new Config() { ConfigId = 1, UpdateFeedIntervalMS = 60 * 60 * 1000 });
 		}
 
 		protected override void OnConfiguring(DbContextOptionsBuilder options)

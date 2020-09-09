@@ -11,6 +11,7 @@ namespace RSSReader.BusinessLogic.Configuration
 		{
 			CreateMap<Categories.Category, DataAccess.Models.Category>().ReverseMap();
 			CreateMap<Channels.Channel, DataAccess.Models.Channel>().ReverseMap();
+			CreateMap<Configs.Config, DataAccess.Models.Config>().ReverseMap();
 			CreateMap<Feeds.FeedItem, DataAccess.Models.FeedItem>().ReverseMap();
 		}
 	}

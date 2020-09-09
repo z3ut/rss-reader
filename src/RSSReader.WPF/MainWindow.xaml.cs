@@ -2,12 +2,14 @@
 using Microsoft.EntityFrameworkCore;
 using RSSReader.BusinessLogic.Categories;
 using RSSReader.BusinessLogic.Channels;
+using RSSReader.BusinessLogic.Configs;
 using RSSReader.BusinessLogic.Feeds;
 using RSSReader.BusinessLogic.Updater;
 using RSSReader.DataAccess;
 using RSSReader.WPF.Components.FeedCategoryTree;
 using RSSReader.WPF.Components.FeedList;
 using RSSReader.WPF.Configuration;
+using RSSReader.WPF.Windows;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -27,6 +29,7 @@ namespace RSSReader.WPF
 		private ICategoryService _categoryService;
 		private IChannelService _channelService;
 		private IFeedService _feedService;
+		private IConfigService _configService;
 		private IFeedUpdater _feedUpdater;
 
 		private IContainer _container;
@@ -34,7 +37,6 @@ namespace RSSReader.WPF
 		private TreeComponent _feedComponent;
 		private TreeComponent _subscriptionsComponent;
 
-		private int _updateFeedIntervalMS = 60 * 60 * 1000;
 		private Timer _updateFeedTimer;
 
 		public MainWindow()
@@ -73,10 +75,10 @@ namespace RSSReader.WPF
 			var feedContext = _container.Resolve<FeedContext>();
 			feedContext.Database.Migrate();
 
-
 			_categoryService = _container.Resolve<ICategoryService>();
 			_channelService = _container.Resolve<IChannelService>();
 			_feedService = _container.Resolve<IFeedService>();
+			_configService = _container.Resolve<IConfigService>();
 			_feedUpdater = _container.Resolve<IFeedUpdater>();
 		}
 
@@ -121,10 +123,18 @@ namespace RSSReader.WPF
 
 		private void SetUpdateFeedTimer()
 		{
-			_updateFeedTimer = new Timer(_updateFeedIntervalMS);
-			_updateFeedTimer.Elapsed += _updateFeedTimer_Elapsed;
-			_updateFeedTimer.AutoReset = true;
-			_updateFeedTimer.Enabled = true;
+			if (_updateFeedTimer == null)
+			{
+				_updateFeedTimer = new Timer();
+				_updateFeedTimer.Elapsed += _updateFeedTimer_Elapsed;
+				_updateFeedTimer.AutoReset = true;
+			}
+
+			var config = _configService.GetConfig();
+
+			_updateFeedTimer.Stop();
+			_updateFeedTimer.Interval = config.UpdateFeedIntervalMS;
+			_updateFeedTimer.Start();
 		}
 
 		private async Task UpdateFeed()
@@ -421,6 +431,25 @@ namespace RSSReader.WPF
 			{
 				channelInTree.Item = channel;
 				channelInTree.Name = channel.Title;
+			}
+		}
+
+		private void FeedUpdateMenuItem_Click(object sender, RoutedEventArgs e)
+		{
+			Task.Run(async () => await UpdateFeed());
+		}
+
+		private void ConfigMenuItem_Click(object sender, RoutedEventArgs e)
+		{
+			var config = _configService.GetConfig();
+			var configWindows = new ConfigWindow(config);
+
+			if (configWindows.ShowDialog() == true)
+			{
+				var updatedConfig = configWindows.UpdatedConfig;
+				_configService.UpdateCongid(updatedConfig);
+
+				SetUpdateFeedTimer();
 			}
 		}
 	}
